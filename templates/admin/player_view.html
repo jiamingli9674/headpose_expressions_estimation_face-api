@@ -1,0 +1,234 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+{{ super() }}
+
+{% if current_user.is_authenticated %}
+
+<head>
+  <script src= "{{ url_for('static', filename = 'js/face-api.js') }}"></script>
+  <script src="{{ url_for('static', filename = 'js/faceDetectionControls.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename = 'css/styles.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+  <h1>
+    Custom View 
+    <small>This is a custom view without DB model</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li class="active">Custom</li>
+  </ol>
+</section>
+
+<section class="container">
+
+  <div class="row">
+    <div id="player"></div>
+  </div>
+  <div class="row col-lg-4 col-md-4 col-sm-4 col-xs-4 pull-right">
+    <video onloadedmetadata="onPlay(this)" id="inputVideo" autoplay muted></video>
+    <canvas id="overlay" width="240" height="160"></canvas>
+  </div>
+  <!-- /.row (main row) -->
+
+</section>
+<script>
+  // 2. This code loads the IFrame Player API code asynchronously.
+  var tag = document.createElement('script');
+
+  tag.src = "https://www.youtube.com/iframe_api";
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+  // 3. This function creates an <iframe> (and YouTube player)
+  //    after the API code downloads.
+  var player;
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+      height: '360',
+      width: '640',
+      videoId: 'M7lc1UVf-VE',
+      events: {
+        'onReady': onPlayerReady
+      }
+    });
+
+  } 
+//TODO why it called?
+  function onPlayerReady(event) {
+    videoInfo = {"video":player.getVideoUrl()}
+
+    $.ajax({url:"/addvideo",
+    type:'POST',
+    contentType: 'application/json',
+    error: function(e) {
+      console.log("error")
+    },
+    data:JSON.stringify(videoInfo)})
+  }
+
+
+
+  var timeStamp = 0;
+  // 5. The API calls this function when the player's state changes.
+  //    The function indicates that when playing a video (state=1),
+  //    the player should play for six seconds and then stop.
+  var isPaused = false;
+
+  function stopVideo() {
+    if (!isPaused){
+      timeStamp = player.getCurrentTime();
+      console.log("stop "+timeStamp);
+      player.stopVideo();
+      isPaused=true;
+    }
+    
+  }
+
+  function resumeVideo() {
+    if (isPaused){
+      console.log("resume"+timeStamp); 
+      //player.playVideo();
+      player.loadVideoById('M7lc1UVf-VE', timeStamp);
+      //player.seekTo(timeStamp, false);
+      
+      isPaused = false;
+    }
+    
+  }
+
+
+  let withBoxes = true
+  async function onPlay() {
+    const videoEl = $('#inputVideo').get(0)
+
+    if(videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
+      return setTimeout(() => onPlay())
+
+    const options = getFaceDetectorOptions()
+    var result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks().withFaceExpressions()
+
+    if (result) {
+        if (player.getPlayerState()!=1){
+          result["playing"] = false
+        }
+        else{
+          result["playing"] = true
+        }
+        result["video"] = player.getVideoUrl();
+        result["timeStamp"] = Math.round(player.getCurrentTime());
+        $.ajax({url:"/result",
+        type:'POST',
+        dataType:"json",
+        contentType: 'application/json',
+        error: function(e) {
+          console.log(e)
+        },
+        data:JSON.stringify(result)})
+
+        const canvas = $('#overlay').get(0)
+        const dims = faceapi.matchDimensions(videoEl,canvas, true)
+        const context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        const resizedResult = faceapi.resizeResults(result, dims)
+        const minConfidence = 0.05
+        if (withBoxes) {
+          faceapi.draw.drawDetections(canvas, resizedResult)
+        }
+        faceapi.draw.drawFaceExpressions(canvas, resizedResult, minConfidence)
+        faceapi.draw.drawFaceLandmarks(canvas, resizedResult)
+      }
+
+    setTimeout(() => onPlay())
+  }
+
+  async function run() {
+    // load face detection model
+    await changeFaceDetector(TINY_FACE_DETECTOR)
+    await faceapi.loadFaceLandmarkModel('/static/models')
+    await faceapi.loadFaceExpressionModel('/static/models')
+    changeInputSize(128)
+
+    // try to access users webcam and stream the images
+    // to the video element
+    const stream = await navigator.mediaDevices.getUserMedia({ video: {} })
+    const videoEl = $('#inputVideo').get(0)
+    videoEl.srcObject = stream
+  }
+
+
+  function checkPose(){
+
+    $.ajax({url:"/checkpose",
+        type:'GET',
+        success:function(data){
+          if (data == 'bad'){
+            console.log("stop video")
+            stopVideo()
+          }
+          else{
+            resumeVideo()
+          }
+        },
+        error: function(e) {
+          console.log("error")
+        }})
+  }
+  $(document).ready(function() {
+
+    initFaceDetectionControls()
+    run()
+    self.setInterval("checkPose()", 2000)
+  })
+
+
+
+
+</script> 
+      
+      
+
+<!-- /.content -->
+{% else %}
+
+<center>
+  <section class="content" style="color: white">
+    <div class="col-sm-12">
+      <h1>Flask-Admin example</h1>
+      <p class="lead">
+        Authentication
+      </p>
+      <p>
+        This example shows how you can use Flask-Admin in an admin template, <br> here I used AdminLTE and <a href="https://pythonhosted.org/Flask-Security/index.html" target="_blank">Flask-Security</a> for authentication.
+      </p>
+      {% if not current_user.is_authenticated %}
+      <p>You can register as a regular user, or log in as a superuser with the following credentials: <br><br>
+
+        email: <b>admin</b> <br>
+        password: <b>admin</b> <br>
+        <br>
+        <p>
+          <a class="btn btn-primary" href="{{ url_for('security.login') }}">Login</a> <a class="btn btn-default" href="{{ url_for('security.register') }}">Register</a>
+        </p>
+        {% endif %}
+        <br>
+        <p>
+          <a class="btn btn-primary" href="/"><i class="glyphicon glyphicon-chevron-left"></i> Back</a>
+        </p>
+      </div>
+    </section>
+  </center>
+
+
+  <br><br><br><br><br><br><br><br><br>
+  <br><br><br><br><br><br><br><br><br><br>
+  {% endif %}
+
+  {% endblock body %}
+
+  
