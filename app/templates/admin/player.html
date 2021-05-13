@@ -8,13 +8,13 @@
   <script src= "{{ url_for('static', filename = 'js/face-api.js') }}"></script>
   <script src="{{ url_for('static', filename = 'js/faceDetectionControls.js') }}"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename = 'css/styles.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
   <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  
 </head>
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
+  <meta id="player_data" code="{{code}}">
   <h1>
     Custom View 
     <small>This is a custom view without DB model</small>
@@ -40,7 +40,7 @@
 <script>
   // 2. This code loads the IFrame Player API code asynchronously.
   var tag = document.createElement('script');
-
+  var video_code = $('#player_data').data("code");
   tag.src = "https://www.youtube.com/iframe_api";
   var firstScriptTag = document.getElementsByTagName('script')[0];
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
@@ -52,16 +52,17 @@
     player = new YT.Player('player', {
       height: '360',
       width: '640',
-      videoId: 'M7lc1UVf-VE',
+      videoId: video_code,
       events: {
         'onReady': onPlayerReady
       }
     });
 
   } 
-//TODO why it called?
+
   function onPlayerReady(event) {
-    videoInfo = {"video":player.getVideoUrl()}
+    player.loadVideoById()
+    videoInfo = {"video_code":video_code}
 
     $.ajax({url:"/addvideo",
     type:'POST',
@@ -93,10 +94,7 @@
   function resumeVideo() {
     if (isPaused){
       console.log("resume"+timeStamp); 
-      //player.playVideo();
-      player.loadVideoById('M7lc1UVf-VE', timeStamp);
-      //player.seekTo(timeStamp, false);
-      
+      player.loadVideoById(video_code, timeStamp);
       isPaused = false;
     }
     
@@ -163,10 +161,11 @@
 
 
   function checkPose(){
-
-    $.ajax({url:"/checkpose",
+    if (!isPaused){
+      $.ajax({url:"/checkpose",
         type:'GET',
         success:function(data){
+          console.log(data)
           if (data == 'bad'){
             console.log("stop video")
             stopVideo()
@@ -178,6 +177,8 @@
         error: function(e) {
           console.log("error")
         }})
+    }
+    
   }
   $(document).ready(function() {
 

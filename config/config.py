@@ -106,3 +106,5 @@ STANDARD_LANDMARKS = '''-73.393523,29.801432,-47.667532
 8.449166,-30.596216,20.671489
 0.205322,-31.408738,21.90367
 -7.198266,-30.844876,20.328022'''
+
+VIDEO_LIST = [{'code':'Hoixgm4-P4M', 'title':'Quick Sort'}, {'code':'nmhjrI-aW5o', 'title':'Bubble Sort'}, {'code':'JSceec-wEyw', 'title':'Merge Sort'}]

@@ -29,45 +29,7 @@ def get_angle(landmarks, image_points):
     
     rmat, _ = cv2.Rodrigues(rotation_vector) 
     return rotationMatrixToEulerAngles(rmat) 
-    # calculate rotation angles
-    # theta = cv2.norm(rotation_vector)
-    # # transformed to quaterniond
-    # w = np.cos(theta / 2)
-    # x = np.sin(theta / 2) * rotation_vector[0] / theta
-    # y = np.sin(theta / 2) * rotation_vector[1] / theta
-    # z = np.sin(theta / 2) * rotation_vector[2] / theta
-    # # quaterniondToEulerAngle
-    # ysqr = y * y
-    # xsqr = x * x
-    # zsqr = z * z
-    # # pitch (x-axis rotation)
-    # t0 = 2.0 * (w * x + y * z)
-    # t1 = 1.0 - 2.0 * (xsqr + ysqr)
-    # pitch = math.atan2(t0, t1)
-    # pitch = pitch * 180 / math.pi
-    # # yaw (y-axis rotation)
-    # t2 = 2.0 * (w * y - z * x)
-    # t2 = 1.0 if t2 > 1.0 else t2
-    # t2 = -1.0 if t2 < -1.0 else t2
-    # yaw = math.asin(t2)
-    # yaw = yaw * 180 / math.pi
-    # # roll (z-axis rotation)
-    # t3 = 2.0 * (w * z + x * y)
-    # t4 = 1.0 - 2.0 * (ysqr + zsqr)
-    # roll = math.atan2(t3, t4)
-    # roll = roll * 180 / math.pi
-    # if roll > 90:
-    #     roll = (roll - 180) % 180
-    # if roll < -90:
-    #     roll = (roll + 180) % 180
-    
-    # if pitch < 0:
-    #     pitch = -(180+pitch)
-    # else:
-    #     pitch = 180 - pitch
-    
-    
-    #return int(pitch), int(yaw), int(roll)
+
 
 def rotationMatrixToEulerAngles(R) : 
     # assert(isRotationMatrix(R)) 
