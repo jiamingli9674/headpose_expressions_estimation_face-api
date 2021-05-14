@@ -1,13 +1,14 @@
 from math import pi
+import views
 from app import create_app
-from config.config import VIDEO_LIST
+from views.views import PlayerView
 from flask import render_template, request
 from flask_security import current_user
 from flask_admin import helpers as admin_helpers
 from flask import url_for,render_template, request
-from service.datebase import build_sample_db, add_video
-from service.pose import check_pose, get_headpose_limit, get_pitch_yaw, set_headpose_limit, check_headpose_setting, reset_headpose_setting, get_landmarks_expressions
-
+from service.datebase import build_sample_db, add_video, get_video_list
+from service.pose import check_pose,set_headpose_limit, reset_headpose_setting, get_landmarks_expressions
+from views.views import BaseView
 import os 
 
 app, db, admin, security, user_datastore = create_app(os.path.join(os.getcwd(), 'config/app_config.py'))
@@ -24,15 +25,13 @@ def security_context_processor():
     
 @app.context_processor
 def inject():
-    return dict(video_list = VIDEO_LIST)
+    return dict(video_list = get_video_list())
     
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/play/<code>')
-def play(code):
-    return render_template('admin/player.html', code=code)
+
 
 @app.route('/setpose')
 def set_pose():
@@ -55,6 +54,7 @@ def resetPose():
 @app.route("/addvideo", methods=['GET', 'POST'])
 def add_Video():
     data = request.get_json()
+    print(data)
     video_id = add_video(data['video_code'])
     return 'ok', 200
 
@@ -71,6 +71,8 @@ if __name__ == '__main__':
     database_path = os.path.join(app_dir, app.config['DATABASE_FILE'])
     if not os.path.exists(database_path):
         build_sample_db(app, db, user_datastore)
-
-    # Start app
+    with app.app_context():
+        for video in get_video_list():
+            admin.add_view(PlayerView(name=video['title'], endpoint='play/'+video['code'], menu_icon_type='fa', menu_icon_value='fa-connectdevelop',))
+        # Start app
     app.run(debug=True)

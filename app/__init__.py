@@ -6,8 +6,7 @@ import flask_admin
 from views.views import *
 from models.video import Video
 from models.expression import Expression
-from config.config import VIDEO_LIST
-
+from service.datebase import get_video_list
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_pyfile(config_name)
@@ -27,8 +26,8 @@ def create_app(config_name):
     admin.add_view(VideoView(Video, db.session, menu_icon_type='fa', menu_icon_value='fa-file-video-o', name="Video"))
     admin.add_view(ExpressionView(Expression, db.session, menu_icon_type='fa', menu_icon_value='fa-hand-peace-o', name="Expressions"))
 
-    # admin.add_view(CalibrationView(name="Calibration", endpoint='calibration', menu_icon_type='fa', menu_icon_value='fa-connectdevelop',))
-    # admin.add_view(PlayerView(name="Player", endpoint='play', menu_icon_type='fa', menu_icon_value='fa-connectdevelop',))
+    admin.add_view(CalibrationView(name="Calibration", endpoint='calibration', menu_icon_type='fa', menu_icon_value='fa-connectdevelop',))
+    
     return app, db, admin, security, user_datastore
 
     

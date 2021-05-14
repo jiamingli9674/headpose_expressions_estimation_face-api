@@ -15,7 +15,7 @@ class UserView(MyModelView):
     }
 
 class VideoView(MyModelView):
-    column_editable_list = ['id', 'name']
+    column_editable_list = ['code', 'title']
     column_searchable_list = column_editable_list
 
 class ExpressionView(MyModelView):
@@ -29,6 +29,9 @@ class CalibrationView(BaseView):
         
     
 class PlayerView(BaseView):
+    def is_visible(self):
+        return False
     @expose('/')
     def play(self):
-        return self.render('admin/index.html')
+        code = self.endpoint.split('/')[-1]
+        return self.render('admin/player.html', code=code)

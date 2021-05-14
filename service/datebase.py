@@ -5,7 +5,7 @@ from models.role import Role
 from service.pose import get_landmarks_expressions
 from flask_security import current_user
 from models.expression import Expression
-
+from config.config import VIDEO_LIST
 from flask_security.utils import encrypt_password
 
 def get_or_create(table, name):
@@ -15,6 +15,12 @@ def get_or_create(table, name):
         db.session.add(record)
         db.session.commit()
     return record.id   
+
+def get_video_list():
+    video_list = []
+    for video in Video.query.all():
+        video_list.append(dict(code = video.code, title = video.title))
+    return video_list
 
 def get_exps_by_user_and_video(user_id, video_id, time_span = 60):
     result = Expression.query.filter_by(user_id = user_id, video_id = video_id).order_by(Expression.time_stamp).all()
@@ -54,7 +60,7 @@ def build_sample_db(app, db, user_datastore):
         db.session.add(user_role)
         db.session.add(super_user_role)
         db.session.commit()
-
+        
         test_user = user_datastore.create_user(
             first_name='Admin',
             email='admin',
@@ -62,6 +68,11 @@ def build_sample_db(app, db, user_datastore):
             roles=[user_role, super_user_role]
         )
 
+        db.session.commit()
+        
+        for video in VIDEO_LIST:
+            v = Video(code=video['code'], title=video['title'])
+            db.session.add(v)
         db.session.commit()
     return
 
