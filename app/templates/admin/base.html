@@ -10,7 +10,6 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Flask-Admin dashboard login template">
-  <meta name="author" content="Jonathan Ars">
   {% endblock head_meta %}
 
   {% block head_css %}
@@ -38,6 +37,7 @@
   <link href="{{url_for('static',filename='plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css')}}" rel="stylesheet">
   <!-- Flask-admin admin styles -->
   <link href="{{ admin_static.url(filename='admin/css/bootstrap3/admin.css', v='1.1.1') }}" rel="stylesheet">
+  
   {% if admin_view.extra_css %}
   {% for css_url in admin_view.extra_css %}
   <link href="{{ css_url }}" rel="stylesheet">
@@ -58,7 +58,7 @@
   {% block page_body %}
 
   <!-- TOP NAVBAR -->
-  <div class="wrapper">
+  <div style="background-image:url('{{ url_for('static', filename='img/bg.png') }}'); height:1000px; overflow:hidden;">
     {% if current_user.is_authenticated %}
     <header class="main-header">
       <!-- Logo -->
@@ -84,7 +84,7 @@
             <li class="dropdown notifications-menu">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                 <i class="fa fa-bell-o"></i>
-                <span class="label label-warning">10</span>
+                <span class="label label-warning"></span>
               </a>
               <ul class="dropdown-menu">
                 <li class="header">You have 10 notifications</li>
@@ -181,11 +181,6 @@
         {% block main_menu %}
         {{ layout.menu() }}
         {% endblock %}
-        <li>
-          <a href="{{url_for('calibration')}}">
-            <i class="fa fa-arrows" ></i><span>Calibration</span>
-          </a>
-        </li>
         <li class="treeview">
           <a href="#">
             <i class="fa fa-youtube-play"></i> <span>Videos</span>

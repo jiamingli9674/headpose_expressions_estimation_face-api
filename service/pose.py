@@ -4,7 +4,6 @@ import numpy as np
 from util.headpose_estimation import get_angle
 
 def get_pitch_yaw():
-    print(session.keys())
     if ('pitch' in session) and ('yaw' in session):
         print('in')
         return session['pitch'], session['yaw']
@@ -68,8 +67,11 @@ def add_to_session(pitch, yaw):
  
 def check_pose():
     pitch, yaw = get_pitch_yaw()
+    print(f'pitch:{pitch}, yaw:{yaw}')
     pitch_tolerance, yaw_tolerance = 5, 5
     pitch_low, pitch_high, yaw_low, yaw_high = get_headpose_limit()
+    print(f'pitch:{pitch_low}-{pitch_high}, yaw:{yaw_low}-{yaw_high}')
+    
     if not pitch:
         return 'not ready', 200
         

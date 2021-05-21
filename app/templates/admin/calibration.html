@@ -13,16 +13,17 @@
 <!-- Content Header (Page header) -->
 <section class="content-header">
   <h1>
-    Custom View 
-    <small>This is a custom view without DB model</small>
+    Calibration 
+    <small>Adjust your pose here</small>
   </h1>
   <ol class="breadcrumb">
     <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-    <li class="active">Custom</li>
+    <li class="active">Calibration</li>
   </ol>
 </section>
 
-<div class="container">
+<center>
+  <div class="container">
     <div class="row" > 
     <div style="position: relative" class="margin">   
     <video onloadedmetadata="onPlay(this)" id="inputVideo" autoplay muted></video>
@@ -41,12 +42,17 @@
         <li id="yaw">Yaw: None</li>
         <li id="pitch">Pitch: None</li>
         <li id="roll">Roll: None</li>
-          <li id="guide"> <div style="display: inline;">Please view at the </div><div id="direction" style="display: inline;">Up</div><div style="display: inline;"> most side of your screen then click Set</div></li>
+        <li id="guide">
+            <div style="display: inline;">Please view at the </div><div id="direction" style="display: inline;">Up</div><div style="display: inline;"> most side of your screen then click Set</div>
+        </li>
+        <li id="done">Congrad, you are all set! Next step select video and view.</li>
       </ul>
     </div>
   </div>
 
 </div>
+</center>
+
 
 <script>
 
@@ -65,7 +71,9 @@
               $('#direction').text("Right")
             }
             else if(data == 3){
-              window.location.replace("/admin/player")
+              $('#guide').hide()
+              $('#done').show()
+              
             }
             else{
               return
@@ -157,7 +165,7 @@
     function updateResults() {}
 
     $(document).ready(function() {
-
+      $('#done').hide()
       initFaceDetectionControls()
       run()
     })
@@ -171,30 +179,29 @@
 <center>
   <section class="content" style="color: white">
     <div class="col-sm-12">
-      <h1>Flask-Admin example</h1>
+      <h1>Engagement Evaluation System</h1>
       <p class="lead">
         Authentication
       </p>
-      <p>
-        This example shows how you can use Flask-Admin in an admin template, <br> here I used AdminLTE and <a href="https://pythonhosted.org/Flask-Security/index.html" target="_blank">Flask-Security</a> for authentication.
-      </p>
+      
       {% if not current_user.is_authenticated %}
       <p>You can register as a regular user, or log in as a superuser with the following credentials: <br><br>
 
         email: <b>admin</b> <br>
         password: <b>admin</b> <br>
         <br>
-        <p>
-          <a class="btn btn-primary" href="{{ url_for('security.login') }}">Login</a> <a class="btn btn-default" href="{{ url_for('security.register') }}">Register</a>
-        </p>
-        {% endif %}
-        <br>
-        <p>
-          <a class="btn btn-primary" href="/"><i class="glyphicon glyphicon-chevron-left"></i> Back</a>
-        </p>
-      </div>
-    </section>
-  </center>
+      <p>
+        <a class="btn btn-primary" href="{{ url_for('security.login') }}">Login</a> <a class="btn btn-default"
+          href="{{ url_for('security.register') }}">Register</a>
+      </p>
+      {% endif %}
+      <br>
+      <p>
+        <a class="btn btn-primary" href="/"><i class="glyphicon glyphicon-chevron-left"></i> Back</a>
+      </p>
+    </div>
+  </section>
+</center>
 
 
   <br><br><br><br><br><br><br><br><br>

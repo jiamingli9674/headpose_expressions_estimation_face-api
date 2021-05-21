@@ -1,7 +1,8 @@
 from . import MyModelView
 from flask_admin import BaseView, expose
-
+from flask import session
 from wtforms import PasswordField
+from flask_security import current_user
 
 class UserView(MyModelView):
     column_editable_list = ['email', 'first_name', 'last_name']
@@ -21,6 +22,19 @@ class VideoView(MyModelView):
 class ExpressionView(MyModelView):
     pass
     
+class ChartView(BaseView):
+    def is_accessible(self):
+        if not current_user.is_authenticated:
+            return False
+
+        if current_user.has_role('superuser'):
+            return True
+
+        return False
+    @expose('/')
+    def index(self):
+        return self.render('admin/chart.html')
+        
 
 class CalibrationView(BaseView):
     @expose('/')
@@ -33,5 +47,5 @@ class PlayerView(BaseView):
         return False
     @expose('/')
     def play(self):
-        code = self.endpoint.split('/')[-1]
+        code = session['video_code']
         return self.render('admin/player.html', code=code)

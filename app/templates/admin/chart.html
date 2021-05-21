@@ -1,0 +1,245 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+{{ super() }}
+
+{% if current_user.is_authenticated %}
+
+<head>
+
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.0/chart.min.js"
+    integrity="sha512-VMsZqo0ar06BMtg0tPsdgRADvl0kDHpTbugCBBrL55KmucH6hP9zWdLIWY//OTfMnzz6xWQRxQqsUFefwHuHyg=="
+    crossorigin="anonymous"></script>
+
+</head>
+
+<!-- Content Header (Page header) -->
+
+
+<body>
+
+  <div class="container-fluid">
+    <div style="margin: 3em;">
+
+  
+      <form role="form" method="POST">
+        <div class="row">
+          <div class=" col-lg-3 col-md-3 col-sm-5">
+            <p>User:</p>
+            <select id="s-user" class="form-control col-sm-3">
+              {%for user in user_list%}
+              <option>{{user.name}}</option>
+              {%endfor%}
+            </select>
+          </div>
+          
+          <div class=" col-lg-3 col-md-3 col-sm-5">
+            <p>Video:</p>
+            <select id="s-video" class="form-control col-sm-3">
+              {%for video in video_list%}
+              <option>{{video.title}}</option>
+              {%endfor%}
+            </select>
+  
+          </div>
+  
+        </div>
+      
+        <div class="row">
+          <div class="col-lg-6 col-md-6 col-sm-5">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Angry</th>
+                  <th scope="col">Disgusted</th>
+                  <th scope="col">Fearful</th>
+                  <th scope="col">Happy</th>
+                  <th scope="col">Neutral</th>
+                  <th scope="col">Sad</th>
+                  <th scope="col">Surprised</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox" id="ang" checked="true"></td>
+                  <td><input type="checkbox" id="dis" checked="true"></td>
+                  <td><input type="checkbox" id="fer" checked="true"></td>
+                  <td><input type="checkbox" id="hap" checked="true"></td>
+                  <td><input type="checkbox" id="neu" checked="true"></td>
+                  <td><input type="checkbox" id="sad" checked="true"></td>
+                  <td><input type="checkbox" id="sup" checked="true"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+            
+  
+  
+      
+      </form>
+      <button class="btn-success" onclick="renew_chart()">Submit</button>
+    </div>
+    <div class="row" style="margin: 1em;">
+      <canvas class="my-4 chartjs-render-monitor" id="myChart" width="527" height="222"
+        style="display: block; width: 527px; height: 222px;"></canvas>
+    </div>
+    </div>
+  
+    </div>
+    
+  </div>
+
+
+</body>
+<!-- Small boxes (Stat box) -->
+
+
+<script>
+   
+    var ctx = document.getElementById('myChart');   
+    var myChart = null; 
+
+  function get_checked(){
+    var ret = []
+    if ($('#ang').prop('checked')){
+      ret.push(0)
+    }
+    if ($('#dis').prop('checked')){
+      ret.push(1)
+    }
+    if ($('#fer').prop('checked')){
+      ret.push(2)
+    }
+    if ($('#hap').prop('checked')){
+      ret.push(3)
+    }
+    if ($('#neu').prop('checked')){
+      ret.push(4)
+    }
+    if ($('#sad').prop('checked')){
+      ret.push(5)
+    }
+    if ($('#sup').prop('checked')){
+      ret.push(6)
+    }
+    return ret;
+  }
+  function renew_chart(){
+    user = $( "#s-user option:selected" ).text();
+    video = $( "#s-video option:selected" ).text();
+
+    
+    $.ajax({url:"/chart/" + user + '/' + video,
+    type:'POST',
+    dataType:"json",
+    contentType: 'application/json',
+    success:function(data){
+        
+        if (myChart == null){
+
+            const config = {
+                type: 'bar',
+                data: data,
+                options: {
+                  plugins: {
+                    title: {
+                      display: true,
+                      text: 'Experssion changes over time for user ' + user + " on video " + video
+                    }
+                  }
+                  ,
+                  responsive: true,
+                  scales: {
+                    x: {
+                      display: true,
+                      stacked: true,
+                      title: {
+                        display: true,
+                        text: 'Time (min)',
+                        font: {
+                          family: 'Times',
+                          size: 20,
+                          style: 'normal',
+                          lineHeight: 1.2
+                        },
+                        padding: {top: 20, left: 0, right: 0, bottom: 0}
+                      }
+                    },
+                    
+                    y: {
+                      display: true,
+                      stacked: true,
+                      title: {
+                        display: true,
+                        text: 'Frequency',
+                        font: {
+                          family: 'Times',
+                          size: 20,
+                          style: 'normal',
+                          lineHeight: 1.2
+                        },
+                        padding: {top: 30, left: 0, right: 0, bottom: 0}
+                      }
+                    }
+                  }
+                }
+              };
+            myChart =  new Chart(ctx, config);
+            myChart.update();
+        }
+        else{
+            myChart.options.plugins.title = {
+                display: true,
+                text: 'Experssion changes over time for user ' + user + " on video " + video
+            }
+            myChart.data = data;
+            myChart.update();
+
+        }
+        
+    },
+    error: function(e) {
+        
+    },
+    data:JSON.stringify({'checked':get_checked()})})
+    
+
+  }
+</script>
+
+<!-- /.content -->
+{% else %}
+
+
+<center>
+  <section class="content" style="color: white">
+    <div class="col-sm-12">
+      <h1>Engagement Evaluation System</h1>
+      <p class="lead">
+        Authentication
+      </p>
+      
+      {% if not current_user.is_authenticated %}
+      <p>You can register as a regular user, or log in as a superuser with the following credentials: <br><br>
+
+        email: <b>admin</b> <br>
+        password: <b>admin</b> <br>
+        <br>
+      <p>
+        <a class="btn btn-primary" href="{{ url_for('security.login') }}">Login</a> <a class="btn btn-default"
+          href="{{ url_for('security.register') }}">Register</a>
+      </p>
+      {% endif %}
+      <br>
+      <p>
+        <a class="btn btn-primary" href="/"><i class="glyphicon glyphicon-chevron-left"></i> Back</a>
+      </p>
+    </div>
+  </section>
+</center>
+
+{% endif %}
+
+{% endblock body %}
