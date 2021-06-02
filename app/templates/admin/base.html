@@ -58,7 +58,7 @@
   {% block page_body %}
 
   <!-- TOP NAVBAR -->
-  <div style="background-image:url('{{ url_for('static', filename='img/bg.png') }}'); height:1000px; overflow:hidden;">
+  <div style="background-image:url('{{ url_for('static', filename='img/bg.png') }}'); padding: 0;  margin: 0;  height: 100%;  overflow:hidden; ">
     {% if current_user.is_authenticated %}
     <header class="main-header">
       <!-- Logo -->
@@ -176,7 +176,7 @@
       </form>
       <!-- /.search form -->
       <!-- sidebar menu: : style can be found in sidebar.less -->
-      <div class="sidebar-menu">
+      <div class="sidebar-menu"  >
         <li class="header">MAIN NAVIGATION</li>
         {% block main_menu %}
         {{ layout.menu() }}

@@ -13,9 +13,9 @@ class Expression(db.Model):
     video_id = db.Column(db.Integer, db.ForeignKey('video.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
-    user_expression = db.relationship('User', backref='experssion', lazy='joined')
+    user_expression = db.relationship('User', backref='experssion')
     
-    video_expression = db.relationship('Video', backref='expression', lazy='joined')
+    video_expression = db.relationship('Video', backref='expression')
     
     def __repr__(self):
         return f'<{self.id} {self.expression} {self.score} {self.time_stamp} {self.video_id}>'

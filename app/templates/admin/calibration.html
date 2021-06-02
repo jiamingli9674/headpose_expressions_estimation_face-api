@@ -22,23 +22,11 @@
   </ol>
 </section>
 
-<center>
-  <div class="container">
-    <div class="row" > 
-    <div style="position: relative" class="margin">   
-    <video onloadedmetadata="onPlay(this)" id="inputVideo" autoplay muted></video>
-    <canvas id="overlay">
-    </canvas>
-    </div>
-</div>
 
-  <div class="row">
+<div class="container">
+  <div class="row" > 
     <div>
-      <ul class="list-unstyled">
-        <div class="container">
-          <button class="btn btn-success" onclick="setPose()">Set</button>
-          <button class="btn btn-success" onclick="resetPose()">Reset</button>
-        </div>
+      <ul class="list-unstyled" style="margin-left: 2em;">
         <li id="yaw">Yaw: None</li>
         <li id="pitch">Pitch: None</li>
         <li id="roll">Roll: None</li>
@@ -46,12 +34,28 @@
             <div style="display: inline;">Please view at the </div><div id="direction" style="display: inline;">Up</div><div style="display: inline;"> most side of your screen then click Set</div>
         </li>
         <li id="done">Congrad, you are all set! Next step select video and view.</li>
+        <li>
+          <button class="btn btn-success" onclick="setPose()">Set</button>
+          <button class="btn btn-success" onclick="resetPose()">Reset</button>
+        </li>
       </ul>
     </div>
-  </div>
+    <div style="position: relative;" class="margin">   
+      
+    <video onloadedmetadata="onPlay(this)" id="inputVideo" autoplay muted></video>
+      <canvas id="overlay"  width="512px" height="512px">
+      </canvas>
+  
+    
+    
+    </div>
 
+    <div class="col col-lg-6 col-md-6 col-sm-6 col-xs-6">
+      
+    </div>
+  </div>
 </div>
-</center>
+
 
 
 <script>
@@ -97,12 +101,7 @@
     let forwardTimes = []
      
     let withBoxes = true
-    function updateTimeStats(timeInMs) {
-      forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
-      const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
-      $('#time').val(`${Math.round(avgTimeInMs)} ms`)
-      $('#fps').val(`${faceapi.round(1000 / avgTimeInMs)}`)
-    }
+
 
     async function onPlay() {
       const videoEl = $('#inputVideo').get(0)
@@ -117,7 +116,6 @@
 
       const result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks().withFaceExpressions()
 
-      updateTimeStats(Date.now() - ts)
 
       if (result) {
         $.ajax({url:"/result",
@@ -162,7 +160,7 @@
       videoEl.srcObject = stream
     }
 
-    function updateResults() {}
+    
 
     $(document).ready(function() {
       $('#done').hide()

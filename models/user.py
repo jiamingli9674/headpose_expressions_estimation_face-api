@@ -15,7 +15,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(255), nullable=False)
     active = db.Column(db.Boolean())
     roles = db.relationship('Role', secondary=roles_users,
-                            backref=db.backref('users', lazy='dynamic'))
+                            backref=db.backref('users'))
 
     def __str__(self):
         return self.email
